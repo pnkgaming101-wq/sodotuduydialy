@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thư Viện Sơ Đồ Tư Duy Địa Lí 12</title>
+  <style>
+    :root {
+      --bg-main: #f4f7f5;
+      --bg-card: #ffffff;
+      --bg-node: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #475569;
+      --border-color: #cbd5e1;
+      --primary: #0f766e;      /* Ngọc bích */
+      --primary-light: #ccfbf1;
+      --secondary: #1d4ed8;    /* Thanh lam */
+      --secondary-light: #dbeafe;
+      --accent: #b45309;       /* Vàng đồng */
+      --accent-light: #fef3c7;
+      --rose: #be123c;
+      --rose-light: #ffe4e6;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+      --line-color: #94a3b8;
+    }
+
+    body.dark {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-node: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #cbd5e1;
+      --border-color: #334155;
+      --primary: #2dd4bf;
+      --primary-light: rgba(45, 212, 191, 0.15);
+      --secondary: #60a5fa;
+      --secondary-light: rgba(96, 165, 250, 0.15);
+      --accent: #fbbf24;
+      --accent-light: rgba(251, 191, 36, 0.15);
+      --rose: #fb7185;
+      --rose-light: rgba(251, 113, 133, 0.15);
+      --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      --line-color: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      transition: background-color 0.25s, color 0.25s;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .brand-icon {
+      font-size: 26px;
+    }
+
+    .brand-title h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.3px;
+    }
+
+    .brand-title p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      padding: 8px 14px 8px 34px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-size: 13.5px;
+      width: 220px;
+      outline: none;
+      transition: border-color 0.2s, width 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      width: 260px;
+    }
+
+    .search-box span {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    button {
+      padding: 8px 13px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    button.primary-btn {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+
+    button.primary-btn:hover {
+      color: #ffffff;
+      opacity: 0.92;
+    }
+
+    button.active-edit {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    button.active-edit:hover {
+      color: #ffffff;
+      opacity: 0.92;
+    }
+
+    button.layout-active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .save-status {
+      font-size: 12.5px;
+      color: var(--primary);
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--primary-light);
+    }
+
+    /* Home Library Grid */
+    #library-view {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 28px 20px;
+      flex: 1;
+    }
+
+    .section-header {
+      margin-bottom: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-header h2 {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .section-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .lesson-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lesson-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .lesson-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+    }
+
+    .card-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      width: fit-content;
+    }
+
+    .card-del-btn {
+      padding: 3px 8px;
+      font-size: 11.5px;
+      border-radius: 6px;
+      border-color: transparent;
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .card-del-btn:hover {
+      border-color: var(--rose);
+      background: var(--rose-light);
+      color: var(--rose);
+    }
+
+    .lesson-card h3 {
+      font-size: 18px;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .lesson-card p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 18px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Mindmap Workspace */
+    #mindmap-view {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      height: calc(100vh - 65px);
+    }
+
+    .mindmap-topbar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .mindmap-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .mindmap-title-group h2 {
+      font-size: 16.5px;
+      font-weight: 700;
+    }
+
+    .canvas-container {
+      flex: 1;
+      overflow: auto;
+      padding: 44px;
+      background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+      background-size: 24px 24px;
+      position: relative;
+    }
+
+    /* Tree Layout - CHẾ ĐỘ NGANG (TRÁI -> PHẢI) */
+    .tree {
+      display: inline-flex;
+      align-items: center;
+      min-width: max-content;
+    }
+
+    .node-wrapper {
+      display: flex;
+      align-items: center;
+    }
+
+    .node-box {
+      background: var(--bg-node);
+      border: 2px solid var(--border-color);
+      border-radius: 13px;
+      padding: 12px 16px;
+      max-width: 340px;
+      min-width: 185px;
+      box-shadow: var(--shadow);
+      position: relative;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .node-box:hover {
+      transform: scale(1.015);
+    }
+
+    .node-box.highlight {
+      outline: 3px solid #f59e0b;
+      background: var(--accent-light);
+    }
+
+    body.edit-mode .node-box {
+      cursor: default;
+    }
+
+    body.edit-mode .node-box:hover {
+      transform: none;
+    }
+
+    [contenteditable="true"] {
+      outline: 1.5px dashed rgba(180, 83, 9, 0.55);
+      border-radius: 6px;
+      padding: 2px 4px;
+      cursor: text;
+      transition: background-color 0.15s, outline-color 0.15s;
+    }
+
+    [contenteditable="true"]:focus {
+      outline: 2px solid var(--accent);
+      background: var(--accent-light);
+    }
+
+    .level-0 > .node-box [contenteditable="true"]:focus {
+      color: var(--text-main);
+    }
+
+    /* Node builder actions */
+    .node-actions {
+      display: none;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 9px;
+      padding-top: 7px;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    body.edit-mode .node-actions {
+      display: flex;
+    }
+
+    .level-0 > .node-box .node-actions {
+      border-top-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .mini-act-btn {
+      padding: 3px 7px;
+      font-size: 11px;
+      border-radius: 6px;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      background: var(--bg-main);
+      color: var(--text-main);
+    }
+
+    .level-0 > .node-box .mini-act-btn {
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .level-0 > .node-box .mini-act-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+    }
+
+    .mini-act-btn.add-child:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .mini-act-btn.del-node:hover {
+      border-color: var(--rose);
+      color: var(--rose);
+      background: var(--rose-light);
+    }
+
+    /* Level Styling */
+    .level-0 > .node-box {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #ffffff;
+      border: none;
+      padding: 18px 24px;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    .level-0 > .node-box .node-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .level-1 > .node-box {
+      border-left: 5px solid var(--primary);
+      background: var(--bg-card);
+    }
+
+    .level-1.branch-1 > .node-box { border-left-color: var(--secondary); }
+    .level-1.branch-2 > .node-box { border-left-color: var(--accent); }
+    .level-1.branch-3 > .node-box { border-left-color: var(--rose); }
+    .level-1.branch-4 > .node-box { border-left-color: var(--primary); }
+    .level-1.branch-5 > .node-box { border-left-color: var(--secondary); }
+    .level-1.branch-6 > .node-box { border-left-color: var(--accent); }
+
+    .level-1 > .node-box .node-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .level-1.branch-1 > .node-box .node-title { color: var(--secondary); }
+    .level-1.branch-2 > .node-box .node-title { color: var(--accent); }
+    .level-1.branch-3 > .node-box .node-title { color: var(--rose); }
+    .level-1.branch-4 > .node-box .node-title { color: var(--primary); }
+    .level-1.branch-5 > .node-box .node-title { color: var(--secondary); }
+    .level-1.branch-6 > .node-box .node-title { color: var(--accent); }
+
+    .level-2 > .node-box {
+      border-color: var(--border-color);
+      padding: 10px 14px;
+    }
+
+    .level-2 > .node-box .node-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .level-3 > .node-box {
+      border-width: 1.5px;
+      padding: 10px 14px;
+      max-width: 350px;
+    }
+
+    .node-title {
+      line-height: 1.38;
+    }
+
+    .node-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.58;
+      margin-top: 6px;
+    }
+
+    .node-desc p {
+      margin-bottom: 7px;
+    }
+
+    .node-desc p:last-child {
+      margin-bottom: 0;
+    }
+
+    .node-desc ul, .node-desc ol {
+      padding-left: 17px;
+      margin-top: 4px;
+    }
+
+    .node-desc li {
+      margin-bottom: 6px;
+    }
+
+    .node-desc li:last-child {
+      margin-bottom: 0;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-size: 13px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--bg-card);
+      z-index: 5;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Horizontal Connectors */
+    .children-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-left: 44px;
+      position: relative;
+    }
+
+    .children-col.collapsed {
+      display: none;
+    }
+
+    .child-item {
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding: 11px 0;
+    }
+
+    .child-item::before {
+      content: '';
+      position: absolute;
+      left: -44px;
+      top: 50%;
+      width: 44px;
+      height: 2px;
+      background: var(--line-color);
+    }
+
+    .child-item::after {
+      content: '';
+      position: absolute;
+      left: -44px;
+      width: 2px;
+      background: var(--line-color);
+      top: 0;
+      bottom: 0;
+    }
+
+    .child-item:first-child::after {
+      top: 50%;
+    }
+
+    .child-item:last-child::after {
+      bottom: 50%;
+    }
+
+    .child-item:only-child::after {
+      display: none;
+    }
+
+    /* ==================== CHẾ ĐỘ DỌC (TRÊN -> DƯỚI) ==================== */
+    .tree.vertical {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tree.vertical .node-wrapper {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tree.vertical .node-box {
+      max-width: 315px;
+      min-width: 175px;
+    }
+
+    .tree.vertical .toggle-btn {
+      right: 50%;
+      top: auto;
+      bottom: -12px;
+      transform: translateX(50%);
+    }
+
+    .tree.vertical .children-col {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      padding-left: 0;
+      padding-top: 42px;
+    }
+
+    .tree.vertical .children-col.collapsed {
+      display: none;
+    }
+
+    .tree.vertical .child-item {
+      flex-direction: column;
+      align-items: center;
+      padding: 0 14px;
+    }
+
+    .tree.vertical .child-item::before {
+      left: 50%;
+      top: -42px;
+      width: 2px;
+      height: 42px;
+      transform: translateX(-50%);
+    }
+
+    .tree.vertical .child-item::after {
+      left: 0;
+      right: 0;
+      top: -42px;
+      bottom: auto;
+      width: auto;
+      height: 2px;
+    }
+
+    .tree.vertical .child-item:first-child::after {
+      left: 50%;
+      right: 0;
+      top: -42px;
+      bottom: auto;
+      width: auto;
+      height: 2px;
+    }
+
+    .tree.vertical .child-item:last-child::after {
+      left: 0;
+      right: 50%;
+      top: -42px;
+      bottom: auto;
+      width: auto;
+      height: 2px;
+    }
+
+    .tree.vertical .child-item:first-child:last-child::after,
+    .tree.vertical .child-item:only-child::after {
+      display: none;
+    }
+
+    /* Mini Table inside node */
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+    .mini-table th, .mini-table td {
+      border: 1px solid var(--border-color);
+      padding: 6px 7px;
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.42;
+    }
+    .mini-table th {
+      background: var(--primary-light);
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    /* Modal Thêm Bài Mới */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-box h3 {
+      font-size: 18px;
+      margin-bottom: 14px;
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 13px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .search-box input { width: 150px; }
+      .search-box input:focus { width: 185px; }
+      .canvas-container { padding: 24px 16px; }
+      .tree:not(.vertical) .children-col { padding-left: 30px; }
+      .tree:not(.vertical) .child-item::before { left: -30px; width: 30px; }
+      .tree:not(.vertical) .child-item::after { left: -30px; }
+    }
+  </style>
+</head>
+<body class="edit-mode">
+
+  <header>
+    <div class="brand" onclick="showLibrary()">
+      <span class="brand-icon">📜</span>
+      <div class="brand-title">
+        <h1>THƯ VIỆN SƠ ĐỒ TƯ DUY</h1>
+        <p>Địa Lí 12 • Ngang / Dọc, thêm bài &amp; tự dựng sơ đồ</p>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="globalSearch" placeholder="Tìm bài học hoặc từ khóa..." oninput="handleSearch(this.value)" />
+      </div>
+      <span class="save-status" id="saveStatus">Đã tự lưu</span>
+      <button onclick="resetAllEdits()" title="Khôi phục nội dung gốc ban đầu">↺ Khôi phục gốc</button>
+      <button onclick="toggleTheme()" id="themeBtn">🌙 Chế độ tối</button>
+    </div>
+  </header>
+
+  <!-- DANH SÁCH CÁC BÀI HỌC -->
+  <main id="library-view">
+    <div class="section-header">
+      <div>
+        <h2>📚 Danh mục Bí kíp Địa Lí</h2>
+        <p>Chọn bài học để mở sơ đồ tư duy — hoặc tự tạo bài mới và thêm nhánh ngay bên trong bài</p>
+      </div>
+      <div class="section-actions">
+        <span id="lessonCount" style="font-size: 13.5px; color: var(--primary); font-weight: 600;"></span>
+        <button class="primary-btn" onclick="openAddLessonModal()">➕ Thêm bài mới</button>
+      </div>
+    </div>
+
+    <div class="cards-grid" id="cardsGrid"></div>
+  </main>
+
+  <!-- KHÔNG GIAN XEM SƠ ĐỒ TƯ DUY -->
+  <section id="mindmap-view">
+    <div class="mindmap-topbar">
+      <div class="mindmap-title-group">
+        <button onclick="showLibrary()">⬅ Danh sách bài</button>
+        <h2 id="currentLessonTitle">Tên bài học</h2>
+      </div>
+      <div class="toolbar">
+        <button onclick="setLayout('horizontal')" id="btnHorizontal" class="layout-active">↔ Mẫu Ngang</button>
+        <button onclick="setLayout('vertical')" id="btnVertical">↕ Mẫu Dọc</button>
+        <button onclick="toggleEditMode()" id="editModeBtn" class="active-edit">✏️ Đang bật sửa &amp; dựng</button>
+        <button onclick="expandAll(true)">➕ Mở rộng tất cả</button>
+        <button onclick="expandAll(false)">➖ Thu gọn nhánh</button>
+        <button onclick="zoomCanvas(0.1)">🔍+</button>
+        <button onclick="zoomCanvas(-0.1)">🔍-</button>
+        <button onclick="resetZoom()">100%</button>
+      </div>
+    </div>
+
+    <div class="canvas-container" id="canvasContainer">
+      <div class="tree" id="mindmapTree"></div>
+    </div>
+  </section>
+
+  <!-- MODAL THÊM BÀI MỚI -->
+  <div class="modal-backdrop" id="addLessonModal" onclick="if(event.target===this) closeAddLessonModal()">
+    <div class="modal-box">
+      <h3>✨ Tạo bài học sơ đồ tư duy mới</h3>
+      <div class="form-group">
+        <label for="newLessonTitle">Tên bài học *</label>
+        <input type="text" id="newLessonTitle" placeholder="Ví dụ: Bài 19: Chuyển dịch cơ cấu kinh tế vùng..." />
+      </div>
+      <div class="form-group">
+        <label for="newLessonBadge">Nhãn phân loại</label>
+        <input type="text" id="newLessonBadge" placeholder="Ví dụ: Bài tự tạo • Địa Lí 12" />
+      </div>
+      <div class="form-group">
+        <label for="newLessonRoot">Tiêu đề nhánh gốc (trung tâm sơ đồ)</label>
+        <input type="text" id="newLessonRoot" placeholder="Để trống sẽ tự lấy theo tên bài học" />
+      </div>
+      <div class="form-group">
+        <label for="newLessonSummary">Tóm tắt ngắn gọn</label>
+        <textarea id="newLessonSummary" rows="2" placeholder="Ghi vài dòng tóm tắt nội dung chính..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeAddLessonModal()">Hủy</button>
+        <button class="primary-btn" onclick="createNewLesson()">Tạo và mở sơ đồ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "dia_li_12_mindmap_edited_v3";
+    const LAYOUT_KEY = "dia_li_12_mindmap_layout_v1";
+
+    const DEFAULT_LESSONS = [
+      {
+        id: "bai-3",
+        badge: "Bài 3 • Địa Lí Tự Nhiên",
+        title: "Bài 3: Sự phân hóa đa dạng của thiên nhiên",
+        summary: "Phân hóa Bắc - Nam, Đông - Tây, theo độ cao; đặc điểm 3 miền địa lý tự nhiên và ảnh hưởng đến phát triển KT-XH.",
+        root: {
+          title: "BÀI 3: SỰ PHÂN HÓA ĐA DẠNG CỦA THIÊN NHIÊN",
+          children: [
+            {
+              title: "I. Thiên nhiên phân hóa đa dạng",
+              children: [
+                {
+                  title: "1. Phân hóa Bắc - Nam",
+                  desc: "<p><strong>Nguyên nhân:</strong> Lãnh thổ trải dài qua nhiều vĩ tuyến + tác động của gió mùa.</p>",
+                  children: [
+                    {
+                      title: "Miền Bắc (Từ 16°B trở ra)",
+                      children: [
+                        {
+                          title: "Khí hậu",
+                          desc: "<p>Nhiệt đới ẩm gió mùa có 1 mùa đông lạnh (2-3 tháng &lt;18°C).</p><p>Nhiệt độ trung bình năm &gt;20°C, biên độ nhiệt năm lớn.</p>"
+                        },
+                        {
+                          title: "Sinh vật & Sản xuất",
+                          desc: "<p>Rừng nhiệt đới gió mùa (mùa đông nhiều loài rụng lá, mùa hạ xanh tốt).</p><p>Loài nhiệt đới chiếm ưu thế, có thêm loài cận nhiệt/ôn đới (dẻ, re, pơ-mu...; gấu, chồn...).</p><p>Trồng được cây vụ đông.</p>"
+                        }
+                      ]
+                    },
+                    {
+                      title: "Miền Nam (Từ 16°B trở vào)",
+                      children: [
+                        {
+                          title: "Khí hậu",
+                          desc: "<p>Cận xích đạo gió mùa có 2 mùa: mưa - khô.</p><p>Nóng quanh năm (nhiệt độ trung bình &gt;25°C), biên độ nhiệt năm nhỏ.</p>"
+                        },
+                        {
+                          title: "Sinh vật & Cảnh sắc",
+                          desc: "<p>Rừng cận xích đạo gió mùa.</p><p>Có cây chịu hạn, rụng lá mùa khô, rừng thưa nhiệt đới khô (họ dầu, săng lẻ...; voi, hổ, báo, trăn...).</p><p>Cảnh sắc thay đổi theo mùa.</p>"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  title: "2. Phân hóa Đông - Tây",
+                  desc: "<p><strong>Nguyên nhân:</strong> Tác động của gió mùa kết hợp với hướng địa hình.</p>",
+                  children: [
+                    {
+                      title: "Vùng biển & thềm lục địa",
+                      desc: "<p>Biển rộng, đặc trưng nhiệt đới ẩm gió mùa, giàu tài nguyên.</p><p>Thềm lục địa mở rộng/nông ở Bắc và Nam, thu hẹp/sâu ở miền Trung.</p>"
+                    },
+                    {
+                      title: "Vùng đồng bằng",
+                      desc: "<p>Đồng bằng Bắc Bộ và Nam Bộ mở rộng, bằng phẳng, đất phù sa màu mỡ (Bắc Bộ có đê; Nam Bộ sông ngòi, kênh rạch chằng chịt).</p><p>Đồng bằng ven biển Trung Bộ hẹp, bị chia cắt, nhiều cát bay/chảy, nghèo dinh dưỡng, dễ ngập mặn/ngập úng.</p>"
+                    },
+                    {
+                      title: "Vùng đồi núi",
+                      desc: "<p>Chiếm phần lớn diện tích ở phía Tây, phân hóa mạnh mẽ.</p><p>Dãy Hoàng Liên Sơn tạo sự khác biệt giữa Đông Bắc và Tây Bắc; dãy Trường Sơn tạo sự đối lập mùa mưa/khô giữa Đông Trường Sơn và Nam Trung Bộ (Tây Nguyên).</p>"
+                    }
+                  ]
+                },
+                {
+                  title: "3. Phân hóa theo độ cao",
+                  children: [
+                    {
+                      title: "Đai nhiệt đới gió mùa",
+                      children: [
+                        { title: "Độ cao", desc: "<p>Miền Bắc &lt;600-700m; Miền Nam &lt;900-1000m.</p>" },
+                        { title: "Khí hậu & Đất", desc: "<p>Mùa hạ nóng (&gt;25°C), độ ẩm thay đổi tùy nơi.</p><p>Đất phù sa (24%), đất feralit (60%).</p>" },
+                        { title: "Sinh vật", desc: "<p>Rừng nhiệt đới gió mùa (thường xanh, lá rộng, ngập mặn, tràm, xavan cây bụi).</p>" }
+                      ]
+                    },
+                    {
+                      title: "Đai cận nhiệt đới gió mùa trên núi",
+                      children: [
+                        { title: "Độ cao", desc: "<p>Miền Bắc 600-700 đến 2600m; Miền Nam 900-1000 đến 2600m.</p>" },
+                        { title: "Khí hậu & Đất", desc: "<p>Mát mẻ (&lt;25°C), mưa nhiều, độ ẩm tăng.</p><p>Đất feralit có mùn và đất mùn.</p>" },
+                        { title: "Sinh vật", desc: "<p>&lt;1700m có rừng cận nhiệt (lá rộng, lá kim, thú có lông).</p><p>&gt;1700m rừng kém phát triển, có chim di cư.</p>" }
+                      ]
+                    },
+                    {
+                      title: "Đai ôn đới gió mùa trên núi",
+                      children: [
+                        { title: "Độ cao & Khí hậu", desc: "<p>Trên 2600m.</p><p>Tính chất ôn đới (quanh năm &lt;15°C, mùa đông &lt;5°C).</p>" },
+                        { title: "Đất & Sinh vật", desc: "<p>Đất mùn thô.</p><p>Thực vật ôn đới chiếm ưu thế (thiết sam, lãnh sam, tre trúc lùn).</p>" }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              title: "II. Các miền địa lý tự nhiên",
+              children: [
+                {
+                  title: "1. Miền Bắc & Đông Bắc Bắc Bộ",
+                  children: [
+                    { title: "Ranh giới", desc: "<p>Dọc hữu ngạn sông Hồng và ranh giới phía tây nam đồng bằng Bắc Bộ.</p>" },
+                    { title: "Địa hình & Biển", desc: "<p>Hướng núi vòng cung, thung lũng sông lớn, đồng bằng châu thổ sông Hồng mở rộng.</p><p>Địa hình ven biển đa dạng, vịnh Bắc Bộ thuận lợi phát triển kinh tế biển.</p>" },
+                    { title: "Khí hậu, Sinh vật & Khoáng sản", desc: "<p>Khí hậu có mùa đông lạnh.</p><p>Sinh vật có nhiều loài cận nhiệt.</p><p>Khoáng sản: than, đá vôi, chì, kẽm...</p>" }
+                  ]
+                },
+                {
+                  title: "2. Miền Tây Bắc & Bắc Trung Bộ",
+                  children: [
+                    { title: "Ranh giới", desc: "<p>Từ ranh giới miền Bắc - Đông Bắc Bắc Bộ đến dãy Bạch Mã.</p>" },
+                    { title: "Địa hình", desc: "<p>Núi xen kẽ thung lũng sông hướng tây bắc - đông nam.</p><p>Địa hình cao nhất nước (núi cao Tây Bắc, núi trung bình Bắc Trung Bộ), đồng bằng ven biển hẹp ngang.</p>" },
+                    { title: "Khí hậu & Tài nguyên", desc: "<p>Khí hậu: ảnh hưởng gió mùa Đông Bắc suy giảm (mùa đông ngắn).</p><p>Sinh vật đa dạng, khoáng sản phong phú.</p>" }
+                  ]
+                },
+                {
+                  title: "3. Miền Nam Trung Bộ & Nam Bộ",
+                  children: [
+                    { title: "Ranh giới", desc: "<p>Từ dãy Bạch Mã trở vào Nam.</p>" },
+                    { title: "Địa hình & Biển đảo", desc: "<p>Địa hình đa dạng (khối núi/cao nguyên đất đỏ bazan Trường Sơn Nam, đồng bằng ven biển hẹp bị chia cắt, đồng bằng Nam Bộ rộng lớn/bằng phẳng, đồng bằng phù sa cổ Đông Nam Bộ).</p><p>Vùng biển rộng, bờ biển đa dạng, có quần đảo Hoàng Sa và Trường Sa.</p>" },
+                    { title: "Khí hậu & Khoáng sản", desc: "<p>Khí hậu cận xích đạo gió mùa.</p><p>Tài nguyên thiên nhiên đa dạng, khoáng sản trữ lượng lớn (bô-xít, dầu mỏ, khí tự nhiên...).</p>" }
+                  ]
+                }
+              ]
+            },
+            {
+              title: "III. Ảnh hưởng đến phát triển KT - XH",
+              children: [
+                {
+                  title: "Thuận lợi",
+                  desc: "<ul><li>Là cơ sở quan trọng để quy hoạch các vùng kinh tế.</li><li>Là căn cứ để xây dựng chiến lược và chính sách phát triển kinh tế.</li><li>Tạo điều kiện phát triển cơ cấu kinh tế đa dạng với nhiều sản phẩm đặc trưng theo vùng/miền.</li></ul>"
+                },
+                {
+                  title: "Khó khăn",
+                  desc: "<p>Sự khác biệt về điều kiện tự nhiên, tài nguyên đòi hỏi các vùng phải bảo đảm tính liên kết khi tổ chức lãnh thổ sản xuất.</p>"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        id: "bai-8",
+        badge: "Bài 8 • Địa Lí Dân Cư",
+        title: "Bài 8: Lao động và việc làm",
+        summary: "Đặc điểm nguồn lao động dồi dào, chất lượng; tình hình sử dụng theo ngành & thành phần KT; vấn đề việc làm và 5 giải pháp.",
+        root: {
+          title: "BÀI 8: LAO ĐỘNG VÀ VIỆC LÀM",
+          children: [
+            {
+              title: "Nhánh 1: Đặc điểm nguồn lao động",
+              children: [
+                {
+                  title: "1. Nguồn lao động dồi dào",
+                  desc: "<p><strong>Quy mô & tốc độ tăng:</strong> Chiếm trên 50% dân số; mỗi năm tăng thêm khoảng 1 triệu lao động.</p><p><strong>Ý nghĩa:</strong> Thu hút vốn đầu tư nước ngoài, tạo lợi thế cạnh tranh trong phát triển kinh tế - xã hội.</p>"
+                },
+                {
+                  title: "2. Chất lượng lao động ngày càng nâng cao",
+                  children: [
+                    {
+                      title: "Ưu điểm",
+                      desc: "<ul><li>Cần cù, chịu khó, năng động, sáng tạo, nhiều kinh nghiệm.</li><li>Chất lượng lao động ngày càng được nâng lên.</li><li>Tỉ lệ lao động đã qua đào tạo liên tục tăng.</li><li>Năng suất lao động xã hội tăng.</li></ul>"
+                    },
+                    {
+                      title: "Hạn chế",
+                      desc: "<ul><li>Tỉ lệ lao động chưa qua đào tạo vẫn còn cao.</li><li>Thiếu kỷ luật và thiếu đội ngũ chuyên gia.</li><li>Thời gian nhàn rỗi còn khá nhiều.</li><li>Phân bố lao động không đều.</li></ul>"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              title: "Nhánh 2: Tình hình sử dụng lao động",
+              children: [
+                {
+                  title: "1. Theo ngành kinh tế",
+                  desc: "<p><strong>Giảm tỉ trọng:</strong> Khu vực Nông - Lâm - Thủy sản (N-L-TS).</p><p><strong>Tăng tỉ trọng:</strong> Khu vực Công nghiệp - Xây dựng (CN-XD) và Dịch vụ (DV) → Năm 2021, Dịch vụ chiếm cao nhất (37,8%).</p><p><strong>Khu vực chiếm ưu thế:</strong> Chuyển từ N-L-TS (năm 2015) sang DV (năm 2021).</p><p><strong>Nguyên nhân:</strong> Do quá trình Công nghiệp hóa - Hiện đại hóa (CNH-HĐH).</p>"
+                },
+                {
+                  title: "2. Theo thành phần kinh tế",
+                  desc: "<p><strong>Giảm tỉ trọng:</strong> Lao động ở khu vực Nhà nước.</p><p><strong>Tăng tỉ trọng:</strong> Lao động ở khu vực có vốn đầu tư nước ngoài.</p><p><strong>Khu vực chiếm ưu thế:</strong> Khu vực ngoài nhà nước (năm 2021 chiếm 82,6%).</p><p><strong>Nguyên nhân:</strong> Do chủ trương phát triển kinh tế thị trường định hướng XHCN.</p>"
+                }
+              ]
+            },
+            {
+              title: "Nhánh 3: Vấn đề việc làm và hướng giải quyết",
+              children: [
+                {
+                  title: "1. Vấn đề việc làm (Thực trạng & Nguyên nhân)",
+                  children: [
+                    {
+                      title: "Mặt tích cực",
+                      desc: "<p>Mỗi năm đều tạo việc làm mới, giải quyết phần lớn số lao động tăng thêm.</p>"
+                    },
+                    {
+                      title: "Mặt hạn chế (Trở ngại)",
+                      desc: "<p>Vẫn còn tình trạng thất nghiệp và thiếu việc làm:</p><ul><li><strong>Thành thị:</strong> Tỉ lệ thất nghiệp cao hơn nông thôn → Nguyên nhân: Thị trường lao động yêu cầu cao, cạnh tranh lớn; tỉ lệ lao động không nghề cao, không đáp ứng tuyển dụng.</li><li><strong>Nông thôn:</strong> Tỉ lệ thiếu việc làm cao hơn thành thị → Nguyên nhân: Cơ cấu kinh tế ít đa dạng, chủ yếu làm nông nghiệp, phụ thuộc mùa vụ, nhiều thời gian nông nhàn.</li></ul>"
+                    }
+                  ]
+                },
+                {
+                  title: "2. Hướng giải quyết việc làm (5 giải pháp trọng tâm)",
+                  desc: "<ul><li>Hoàn thiện thể chế, chính sách pháp luật đồng bộ, thống nhất → thị trường lao động linh hoạt, hiện đại, hiệu quả, hội nhập quốc tế.</li><li>Thúc đẩy tạo việc làm mới, việc làm sáng tạo, chất lượng cao.</li><li>Đẩy mạnh liên kết thị trường việc làm trong và ngoài nước.</li><li>Đổi mới toàn diện hệ thống đào tạo, giáo dục nghề nghiệp (hướng mở, linh hoạt, hiệu quả).</li><li>Triển khai tốt các quy định, biện pháp giúp người lao động có việc làm và thu nhập ổn định.</li></ul>"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        id: "bai-9",
+        badge: "Bài 9 • Địa Lí Dân Cư",
+        title: "Bài 9: Đô thị hóa",
+        summary: "Lịch sử 4 giai đoạn đô thị hóa, tỉ lệ dân thành thị, phân bố mạng lưới (6 TP trực thuộc TW) và ảnh hưởng đến KT-XH.",
+        root: {
+          title: "BÀI 9: ĐÔ THỊ HÓA",
+          children: [
+            {
+              title: "Nhánh 1: Đặc điểm đô thị hóa",
+              children: [
+                {
+                  title: "1. Lịch sử đô thị hóa ở Việt Nam (4 giai đoạn)",
+                  desc: "<ul><li><strong>Thế kỉ III TCN:</strong> Đô thị đầu tiên là Thành Cổ Loa; hình thành ven sông, ven biển; chức năng chính là hành chính, kinh tế.</li><li><strong>Thời Pháp thuộc:</strong> Hệ thống đô thị hình thành và phát triển với chức năng hành chính, kinh tế, quân sự.</li><li><strong>Giai đoạn 1975 – 1986:</strong> Quá trình đô thị hóa diễn ra chậm.</li><li><strong>Từ công cuộc Đổi mới đến nay:</strong> Phát triển nhanh chóng cả về số lượng và chất lượng; ngày càng đông đúc, hiện đại, phát triển hạ tầng kĩ thuật, nhà cửa và vùng đô thị thông minh.</li></ul>"
+                },
+                {
+                  title: "2. Tỉ lệ dân thành thị và quy mô đô thị",
+                  desc: "<p>Tỉ lệ dân thành thị liên tục tăng cùng quá trình phát triển kinh tế, nhưng vẫn còn thấp so với thế giới.</p><p>Quy mô đô thị ngày càng mở rộng; xuất hiện các đô thị mới, đô thị vệ tinh.</p>"
+                },
+                {
+                  title: "3. Chức năng và lối sống đô thị",
+                  desc: "<p><strong>Chức năng:</strong> Đô thị quy mô lớn là trung tâm chính trị, kinh tế, giáo dục, văn hóa...; một số đô thị nổi bật về kinh tế công nghiệp, dịch vụ.</p><p><strong>Lối sống:</strong> Lối sống đô thị ngày càng phổ biến, mở rộng và lan tỏa ra nhiều vùng nông thôn.</p>"
+                }
+              ]
+            },
+            {
+              title: "Nhánh 2: Phân bố mạng lưới đô thị",
+              children: [
+                {
+                  title: "Phạm vi & Phân loại theo cấp quản lí",
+                  desc: "<p><strong>Phạm vi:</strong> Phân bố rộng khắp cả nước.</p><p><strong>Phân loại theo cấp quản lí:</strong> Gồm đô thị trực thuộc trung ương và đô thị trực thuộc tỉnh.</p>"
+                },
+                {
+                  title: "6 thành phố trực thuộc trung ương",
+                  desc: "<ul><li>Thành phố Hà Nội</li><li>Thành phố Hải Phòng (hợp nhất TP. Hải Phòng, tỉnh Hải Dương)</li><li>Thành phố Huế</li><li>Thành phố Đà Nẵng (hợp nhất TP. Đà Nẵng, tỉnh Quảng Nam)</li><li>Thành phố Hồ Chí Minh (hợp nhất TP.HCM, tỉnh Bình Dương, tỉnh Bà Rịa - Vũng Tàu)</li><li>Thành phố Cần Thơ (hợp nhất TP. Cần Thơ, tỉnh Sóc Trăng, tỉnh Hậu Giang)</li></ul>"
+                }
+              ]
+            },
+            {
+              title: "Nhánh 3: Ảnh hưởng đến phát triển kinh tế - xã hội",
+              children: [
+                {
+                  title: "1. Đối với kinh tế",
+                  desc: "<ul><li>Thúc đẩy tốc độ tăng trưởng kinh tế.</li><li>Chuyển dịch cơ cấu lao động và cơ cấu kinh tế.</li><li>Đóng góp vào GDP của vùng, hình thành cực tăng trưởng kinh tế, thu hút nguồn lực.</li></ul>"
+                },
+                {
+                  title: "2. Đối với xã hội",
+                  children: [
+                    {
+                      title: "Tích cực",
+                      desc: "<ul><li>Giải quyết việc làm, tăng phúc lợi xã hội.</li><li>Thu hút lao động có trình độ cao từ nông thôn.</li><li>Tạo thuận lợi phát triển khoa học - công nghệ.</li><li>Sử dụng đông đảo lực lượng lao động có trình độ chuyên môn kĩ thuật.</li></ul>"
+                    },
+                    {
+                      title: "Hạn chế",
+                      desc: "<p>Tạo sức ép lớn lên cơ sở hạ tầng, giải quyết việc làm và môi trường (nhà ở, ô nhiễm môi trường, ùn tắc giao thông...).</p>"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        id: "bai-11",
+        badge: "Bài 11 • Địa Lí Kinh Tế",
+        title: "Bài 11: Chuyển dịch cơ cấu kinh tế",
+        summary: "Ý nghĩa tất yếu của chuyển dịch cơ cấu kinh tế, xu hướng CNH-HĐH và vai trò của 3 thành phần kinh tế.",
+        root: {
+          title: "BÀI 11: CHUYỂN DỊCH CƠ CẤU KINH TẾ",
+          children: [
+            {
+              title: "I. Ý nghĩa chuyển dịch cơ cấu kinh tế ở nước ta",
+              desc: "<p>Là xu thế tất yếu, có ý nghĩa quan trọng vì giúp:</p>",
+              children: [
+                { title: "Nguồn lực sẵn có", desc: "<p>Khai thác, sử dụng hiệu quả các nguồn lực sẵn có.</p>" },
+                { title: "Trong nước & bên ngoài", desc: "<p>Khai thác tổng hợp nguồn lực trong nước + tranh thủ nguồn lực bên ngoài.</p>" },
+                { title: "Hội nhập", desc: "<p>Đẩy nhanh hội nhập.</p>" }
+              ]
+            },
+            {
+              title: "II. Chuyển dịch cơ cấu kinh tế",
+              children: [
+                {
+                  title: "1. Chuyển dịch theo hướng CNH-HĐH",
+                  desc: "<p>Thể hiện qua các đặc điểm:</p>",
+                  children: [
+                    {
+                      title: "Ngành & lao động",
+                      desc: "<p>Tăng trưởng cao ở khu vực CN-XD và dịch vụ; giảm tỉ trọng nông - lâm - thủy sản; cơ cấu lao động phù hợp cơ cấu KT, chất lượng lao động tăng nhanh.</p>"
+                    },
+                    {
+                      title: "Theo lãnh thổ",
+                      desc: "<p>Chuyển dịch theo lãnh thổ: hình thành các vùng KT1, vùng KT trọng điểm, vùng động lực, KCN tập trung, khu chế xuất, vùng chuyên canh, vùng sản xuất hàng hóa... nhằm khai thác lợi thế, tạo liên kết ngành/địa phương.</p>"
+                    },
+                    {
+                      title: "Thành tựu & mục tiêu",
+                      desc: "<p>Đạt nhiều thành tựu tích cực, hướng đến phát triển bền vững và bảo vệ môi trường.</p>"
+                    }
+                  ]
+                },
+                {
+                  title: "2. Vai trò của các thành phần kinh tế",
+                  desc: `<p>Sự chuyển dịch định hình rõ vai trò cốt lõi từng khu vực:</p>
+                    <table class="mini-table">
+                      <thead>
+                        <tr>
+                          <th>Thành phần Kinh tế</th>
+                          <th>Vai trò</th>
+                          <th>Luận điểm/Minh chứng</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><strong>Kinh tế Nhà nước</strong></td>
+                          <td>Chủ đạo</td>
+                          <td>Tỉ trọng giảm nhưng vẫn nắm ngành then chốt, lĩnh vực trọng yếu; ổn định vĩ mô, định hướng phát triển toàn nền KT.</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Kinh tế ngoài Nhà nước</strong></td>
+                          <td>Động lực quan trọng</td>
+                          <td>Chiếm tỉ trọng GDP lớn nhất (&gt;50%); huy động nguồn lực xã hội, tạo việc làm, thúc đẩy phát triển địa phương và quốc gia.</td>
+                        </tr>
+                        <tr>
+                          <td><strong>Khu vực có vốn ĐTNN (FDI)</strong></td>
+                          <td>Nguồn lực bổ sung</td>
+                          <td>Phát triển nhanh gần đây; đóng vai trò đầu tàu trong CN chế tạo, chuyển giao công nghệ, thúc đẩy xuất khẩu, hội nhập toàn cầu.</td>
+                        </tr>
+                      </tbody>
+                    </table>`
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        id: "bai-12",
+        badge: "Bài 12 • Địa Lí Ngành Kinh Tế",
+        title: "Bài 12: Vấn đề phát triển nông nghiệp",
+        summary: "Thế mạnh và hạn chế tự nhiên - KT-XH; chuyển dịch cơ cấu, phân bố trồng trọt - chăn nuôi và xu hướng phát triển.",
+        root: {
+          title: "BÀI 12: VẤN ĐỀ PHÁT TRIỂN NÔNG NGHIỆP",
+          children: [
+            {
+              title: "I. Thế mạnh và hạn chế đối với phát triển nông nghiệp",
+              children: [
+                {
+                  title: "1. Điều kiện tự nhiên và tài nguyên thiên nhiên",
+                  children: [
+                    {
+                      title: "a) Thế mạnh",
+                      desc: "<ul><li><strong>Địa hình, đất đai:</strong> Cao nguyên đồi núi thấp có đất feralit thuận lợi trồng cây công nghiệp, cây ăn quả, đồng bằng đất phù sa màu mỡ hợp trồng cây lương thực, thực phẩm, đồng cỏ lớn để chăn nuôi lợn, gia cầm.</li><li><strong>Khí hậu:</strong> Nhiệt đới ẩm gió mùa, phân hóa giúp đa dạng cơ cấu cây trồng, vật nuôi, phát triển quanh năm, năng suất cao.</li><li><strong>Sông ngòi:</strong> Mạng lưới dày đặc, nguồn nước phong phú.</li><li><strong>Sinh vật:</strong> Hệ động, thực vật đa dạng, phong phú là cơ sở thuần dưỡng, lai tạo giống tạo đặc sản vùng miền giá trị kinh tế cao.</li></ul>"
+                    },
+                    {
+                      title: "b) Hạn chế",
+                      desc: "<ul><li>Nhiều thiên tai, dịch bệnh, biến đổi khí hậu.</li><li>Bình quân đất canh tác thấp, khó mở rộng.</li></ul>"
+                    }
+                  ]
+                },
+                {
+                  title: "2. Điều kiện kinh tế xã hội",
+                  children: [
+                    {
+                      title: "a) Thế mạnh",
+                      desc: "<ul><li>Dân cư và nguồn lao động dồi dào, thị trường tiêu thụ lớn, kinh nghiệm lâu đời, trình độ ngày càng nâng cao.</li><li>Khoa học công nghệ và cơ sở vật chất kỹ thuật được chú trọng, tạo sản phẩm an toàn giá trị cao.</li><li>Thị trường tiêu thụ trong và ngoài nước mở rộng, thúc đẩy sản xuất, đa dạng hóa sản phẩm.</li><li>Các chính sách thúc đẩy nông nghiệp của Nhà nước.</li></ul>"
+                    },
+                    {
+                      title: "b) Hạn chế",
+                      desc: "<ul><li>Cơ sở vật chất kĩ thuật còn hạn chế, chưa hoàn thiện và đồng bộ.</li><li>Thị trường còn nhiều biến động, việc đáp ứng tiêu chuẩn toàn cầu còn hạn chế.</li></ul>"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              title: "II. Tình hình phát triển và phân bố nông nghiệp",
+              children: [
+                {
+                  title: "1. Chuyển dịch cơ cấu nông nghiệp",
+                  children: [
+                    {
+                      title: "a. Xu hướng & b. Nguyên nhân",
+                      desc: "<p><strong>a. Xu hướng:</strong> Giảm tỉ trọng ngành trồng trọt, tăng tỉ trọng ngành chăn nuôi và dịch vụ nông nghiệp.</p><p><strong>b. Nguyên nhân:</strong> Do tác động của thị trường, khoa học – công nghệ, chính sách phát triển nông nghiệp, ...</p>"
+                    },
+                    {
+                      title: "c. Hướng chuyển dịch trong nội bộ ngành",
+                      desc: "<p><strong>Đối với ngành trồng trọt:</strong></p><ul><li>chuyển đổi cơ cấu cây trồng;</li><li>hình thành các vùng chuyên canh quy mô lớn;</li><li>ưu tiên phát triển các cây trồng có lợi thế so sánh cao hơn.</li></ul><p><strong>Đối với chăn nuôi:</strong></p><ul><li>tăng tỉ trọng sản phẩm không qua giết mổ;</li><li>phát triển đặc sản bản địa, có giá trị kinh tế cao;</li><li>áp dụng chăn nuôi hữu cơ.</li></ul>"
+                    }
+                  ]
+                },
+                {
+                  title: "2. Tình hình phát triển và phân bố nông nghiệp",
+                  children: [
+                    {
+                      title: "a) Trồng trọt",
+                      children: [
+                        {
+                          title: "❖ Cây lương thực",
+                          desc: "<ul><li>✓ Tỉ trọng diện tích: lớn, chiếm 56,4% tổng diện tích gieo trồng.</li><li>✓ Chiếm vị trí chủ đạo: cây lúa gạo.</li><li>✓ Sản lượng lúa: không ngừng tăng nhờ áp dụng KH - CN.</li><li>✓ Vùng sản xuất lương thực chủ yếu: ĐB sông Cửu Long và ĐB sông Hồng.</li></ul>"
+                        },
+                        {
+                          title: "❖ Cây công nghiệp",
+                          desc: "<ul><li>✓ Phát triển theo chiều sâu, gắn chế biến với tiêu thụ.</li><li>✓ Cây lâu năm chiếm tỉ trọng lớn (2,2/2,6 ha diện tích), thành vùng chuyên canh ở Nam Trung Bộ và Đông Nam Bộ (cà phê, cao su, hồ tiêu, điều); Tây Bắc và Bắc Trung Bộ (chè), xuất khẩu nhiều nhất là cà phê, điều, tiêu (hồ tiêu).</li><li>✓ Cây hàng năm: phát triển không ổn định, diện tích xu hướng giảm; chủ yếu là mía, lạc, đậu tương, bông, dâu.</li></ul>"
+                        },
+                        {
+                          title: "❖ Cây ăn quả",
+                          desc: "<ul><li>✓ Có diện tích tăng nhanh với các loại cam, chuối, xoài, nhãn, vải, bưởi, sầu riêng.</li><li>✓ Nhiều đặc sản có chỉ dẫn địa lí (như nhãn lồng Hưng Yên, vải thiều Bắc Giang, sầu riêng Cai Lậy – Tiền Giang,...).</li><li>✓ Có mô hình được cấp chứng nhận an toàn như VietGAP, áp dụng công nghệ cao.</li><li>✓ Sản lượng theo nhiều: ĐBSCL, TD&amp;MNBB, ĐNB.</li></ul>"
+                        },
+                        {
+                          title: "❖ Cây rau đậu và cây khác",
+                          desc: "<ul><li>✓ Diện tích trồng rau đậu ngày càng tăng để đáp ứng nhu cầu.</li><li>✓ Trồng nhiều nhất ở ĐBSCL, ĐBSH.</li><li>✓ Xu hướng phát triển: trồng thành các vành đai ven thành phố, tạo sản phẩm an toàn, chất lượng.</li><li>✓ Các cây khác cũng được chú trọng phát triển như cây dược liệu,...</li></ul>"
+                        }
+                      ]
+                    },
+                    {
+                      title: "b) Chăn nuôi",
+                      children: [
+                        {
+                          title: "❖ Đặc điểm chung",
+                          desc: "<ul><li>✓ Giá trị sản xuất và tỉ trọng ngày càng tăng.</li><li>✓ Hướng phát triển: áp dụng kĩ thuật và công nghệ tiên tiến; chăn nuôi theo hướng hữu cơ; xây dựng vùng nuôi an toàn; chế biến sâu gắn với phát triển thị trường.</li></ul>"
+                        },
+                        {
+                          title: "❖ Lợn và gia cầm",
+                          desc: "<ul><li>✓ Lợn: là vật nuôi lấy thịt quan trọng nhất (62% sản lượng thịt).</li><li>✓ Các vùng nuôi lợn nhiều: Trung du và miền núi Bắc Bộ và Đồng bằng sông Hồng.</li><li>✓ Gia cầm: số lượng tăng nhanh nhờ sự phát triển của công nghiệp chế biến thức ăn.</li><li>✓ Phân bố: gà được nuôi khắp các tỉnh, vịt nuôi nhiều ở Đồng bằng sông Cửu Long.</li></ul>"
+                        },
+                        {
+                          title: "❖ Trâu, bò & Các gia súc khác",
+                          desc: "<ul><li>✓ Số lượng đàn trâu: có xu hướng giảm.</li><li>✓ Các vùng nuôi trâu nhiều: Trung du và miền núi Bắc Bộ, Bắc Trung Bộ.</li><li>✓ Số lượng đàn bò: tăng nhanh và nuôi theo hướng chuyên môn hóa.</li><li>✓ Các vùng nuôi bò sữa nhiều là ven các thành phố lớn; bò thịt nuôi nhiều tại Trung du và miền núi Bắc Bộ, Bắc Trung Bộ, Nam Trung Bộ.</li><li>✓ Dê, cừu cũng được phát triển ở một số địa phương.</li></ul>"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              title: "III. Xu hướng phát triển nông nghiệp",
+              desc: "<ul><li>Phát triển cơ cấu cây trồng, vật nuôi gắn lợi thế cạnh tranh và nhu cầu thị trường.</li><li>Phát triển nông nghiệp gắn với xây dựng các vùng sản xuất hàng hóa tập trung, quy mô lớn, đáp ứng nhu cầu thị trường và cung cấp nguyên liệu cho công nghiệp chế biến.</li><li>Đẩy mạnh hợp tác liên kết, phát triển chuỗi giá trị, các mô hình nông nghiệp tiên tiến, ưu tiên phát triển công nghiệp chế biến, phát triển mô hình nông nghiệp mới (Tổ chức sản xuất, nghiên cứu, chọn lọc giống, đổi mới phương thức quản lí, nâng cao trình độ cơ giới hóa, tự động hóa).</li></ul>"
+            }
+          ]
+        }
+      },
+      {
+        id: "bai-13",
+        badge: "Bài 13 • Địa Lí Ngành Kinh Tế",
+        title: "BÀI 13: VẤN ĐỀ PHÁT TRIỂN LÂM NGHIỆP VÀ THỦY SẢN",
+        summary: "Đầy đủ toàn bộ nội dung Nhánh lớn 1: Lâm nghiệp và Nhánh lớn 2: Thủy sản.",
+        root: {
+          title: "BÀI 13: VẤN ĐỀ PHÁT TRIỂN LÂM NGHIỆP VÀ THỦY SẢN",
+          children: [
+            {
+              title: "NHÁNH LỚN 1: LÂM NGHIỆP",
+              children: [
+                {
+                  title: "1. Thế mạnh và hạn chế",
+                  children: [
+                    {
+                      title: "a) Thế mạnh",
+                      desc: "<ul><li><strong>Tài nguyên rừng:</strong> Tổng diện tích rừng năm 2021 đạt 14,7 triệu ha (rừng tự nhiên chiếm gần 69%), tỉ lệ che phủ đạt 42%.</li><li><strong>Khí hậu &amp; địa hình:</strong> Khí hậu nhiệt đới ẩm gió mùa → hệ sinh thái rừng đặc trưng, đa dạng sinh học cao. Đồi núi thấp thuận lợi trồng &amp; bảo vệ rừng; đồng bằng có rừng tràm, ven biển có rừng ngập mặn.</li><li><strong>Chính sách &amp; KH-CN:</strong> Nhiều chính sách quan trọng (giao đất giao rừng, đóng cửa rừng tự nhiên, thu hút vốn xanh...); ứng dụng KH-CN rộng rãi nâng cao giá trị sản xuất.</li><li><strong>Con người &amp; thị trường:</strong> Người dân có kinh nghiệm, trình độ ngày càng cao; nhu cầu tiêu thụ lâm sản lớn.</li></ul>"
+                    },
+                    {
+                      title: "b) Hạn chế",
+                      desc: "<ul><li>Chất lượng rừng còn thấp (chủ yếu là rừng thứ sinh mới phục hồi), năng suất trồng rừng còn thấp.</li><li>Tác động của biến đổi khí hậu; công tác bảo vệ, quản lí chưa được chú trọng đúng mức.</li><li>Quy trình sản xuất - chế biến còn hạn chế, thiếu liên kết chặt chẽ giữa doanh nghiệp và người trồng rừng.</li></ul>"
+                    }
+                  ]
+                },
+                {
+                  title: "2. Tình hình phát triển và phân bố",
+                  children: [
+                    {
+                      title: "Đặc điểm chung",
+                      desc: "<p>Giá trị sản xuất năm 2021 đạt 63,3 nghìn tỉ đồng; ứng dụng nhiều KH-CN vào trồng, chế biến, lai tạo giống, giám sát và quản lí dữ liệu rừng.</p>"
+                    },
+                    {
+                      title: "a) Trồng rừng, khoanh nuôi và bảo vệ rừng",
+                      desc: "<ul><li>Đẩy mạnh trồng rừng tập trung: năm 2021 trồng thêm 0,3 triệu ha, tập trung chủ yếu ở Quảng Ngãi, Đà Nẵng, Nghệ An, Gia Lai.</li><li>Quan tâm khoanh nuôi, bảo vệ rừng, đặc biệt là bảo vệ rừng kết hợp du lịch sinh thái.</li></ul>"
+                    },
+                    {
+                      title: "b) Khai thác, chế biến gỗ và lâm sản",
+                      desc: "<ul><li>Sản lượng khai thác gỗ năm 2021 đạt 18,9 triệu m³; tập trung chủ yếu ở Quảng Ngãi, Đà Nẵng, Nghệ An, Gia Lai (chiếm 36,3%).</li><li>Sản phẩm chính: gỗ tròn, gỗ xẻ, gỗ dán, đồ gỗ, gỗ giấy...; công nghiệp sản xuất giấy phát triển.</li><li>Khai thác lâm sản khác: măng, mộc nhĩ, dược liệu...</li></ul>"
+                    }
+                  ]
+                },
+                {
+                  title: "3. Vấn đề quản lí và bảo vệ tài nguyên rừng",
+                  desc: "<p>Giữ vai trò đặc biệt quan trọng đối với kinh tế và môi trường sinh thái (các giải pháp cụ thể theo SGK).</p>"
+                }
+              ]
+            },
+            {
+              title: "NHÁNH LỚN 2: THỦY SẢN",
+              children: [
+                {
+                  title: "1. Thế mạnh và hạn chế đối với phát triển thủy sản",
+                  children: [
+                    {
+                      title: "a) Thế mạnh",
+                      desc: "<ul><li><strong>Biển &amp; ngư trường:</strong> Nguồn lợi hải sản phong phú, nhiều đặc sản; có 4 ngư trường trọng điểm:<ol><li>Hải Phòng – Quảng Ninh</li><li>Hoàng Sa – Trường Sa</li><li>Khánh Hòa – Lâm Đồng – TP. Hồ Chí Minh</li><li>Cà Mau – An Giang</li></ol></li><li><strong>Điều kiện nuôi trồng:</strong> Bờ biển nhiều vũng, vịnh, đầm, phá, rừng ngập mặn, cửa sông → thuận lợi hình thành bãi tôm cá và nuôi thủy sản nước mặn, nước lợ. Hệ thống sông, suối, kênh rạch, ao hồ, ô trũng ở đồng bằng → nuôi thủy sản nước ngọt.</li><li><strong>Kinh tế - xã hội:</strong> Người dân có kinh nghiệm, trình độ tăng; ứng dụng KH-CN tiên tiến; phương tiện đánh bắt hiện đại, dịch vụ chế biến mở rộng; thị trường trong &amp; ngoài nước mở rộng; chính sách quản lí của Nhà nước chặt chẽ.</li></ul>"
+                    },
+                    {
+                      title: "b) Hạn chế",
+                      desc: "<ul><li>Bão, áp thấp nhiệt đới hạn chế ngày ra khơi, gây thiệt hại cho nuôi trồng.</li><li>Môi trường một số vùng ven biển và lưu vực sông suy thoái → suy giảm nguồn lợi thủy sản.</li><li>Công nghệ khai thác, bảo quản, chế biến ở một số vùng còn hạn chế; thị trường tiêu thụ biến động.</li></ul>"
+                    }
+                  ]
+                },
+                {
+                  title: "2. Tình hình phát triển và phân bố ngành thủy sản",
+                  children: [
+                    {
+                      title: "a) Chuyển dịch cơ cấu ngành",
+                      desc: "<ul><li>Hướng tới hiệu quả, bền vững, bảo vệ môi trường sinh thái, hội nhập quốc tế và bảo vệ an ninh quốc phòng biển đảo.</li><li>Xu hướng chung: Giảm tỉ trọng khai thác, tăng tỉ trọng giá trị và sản lượng nuôi trồng.</li><li>Nuôi trồng: Đa dạng cơ cấu (ưu thế là cá và tôm); nuôi quy mô lớn, công nghệ cao, an toàn sinh học; tăng chế biến sâu phục vụ trong nước và xuất khẩu.</li><li>Khai thác: Tăng cường đánh bắt xa bờ (khơi), xây dựng cơ cấu tàu thuyền hợp lí gắn với sinh kế.</li></ul>"
+                    },
+                    {
+                      title: "b) Tình hình phát triển và phân bố",
+                      desc: "<ul><li><strong>Chung:</strong> Chiếm 26,3% giá trị sản xuất nông – lâm – thủy sản (năm 2021); sản lượng tăng; nuôi trồng tăng trưởng nhanh hơn đánh bắt.</li><li><strong>Khai thác thủy sản:</strong><ul><li>Chiếm 44,6% tổng sản lượng thủy sản.</li><li>Ưu tiên đánh bắt xa bờ; chú trọng kiểm soát vùng đánh bắt và truy xuất nguồn gốc.</li><li>Các tỉnh dẫn đầu: An Giang, Bà Rịa – TP. Hồ Chí Minh, Quảng Ngãi, Gia Lai, Lâm Đồng, Cà Mau.</li></ul></li><li><strong>Nuôi trồng thủy sản:</strong><ul><li>Sản lượng tăng nhanh, quan trọng nhất là cá và tôm; đẩy mạnh nuôi thâm canh, áp dụng KH-KT.</li><li>Nuôi tôm: phát triển mạnh, nhiều nhất ở Đồng bằng sông Cửu Long.</li><li>Nuôi cá: tập trung chủ yếu ở Đồng bằng sông Cửu Long và Đồng bằng sông Hồng.</li></ul></li></ul>"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        id: "bai-14",
+        badge: "Bài 14 • Địa Lí Ngành Kinh Tế",
+        title: "BÀI 14: TỔ CHỨC LÃNH THỔ NÔNG NGHIỆP",
+        summary: "Đầy đủ toàn bộ nội dung Nhánh lớn 1: Trang trại, Nhánh lớn 2: Vùng chuyên canh và Nhánh lớn 3: Khu nông nghiệp công nghệ cao.",
+        root: {
+          title: "BÀI 14: TỔ CHỨC LÃNH THỔ NÔNG NGHIỆP",
+          children: [
+            {
+              title: "NHÁNH LỚN 1: TRANG TRẠI",
+              children: [
+                {
+                  title: "1. Khái niệm và vai trò",
+                  desc: "<p><strong>Khái niệm:</strong> Khu vực đất đai diện tích tương đối rộng lớn, thuộc quyền sử dụng của cá nhân/tổ chức để sản xuất nông nghiệp chuyên ngành hoặc tổng hợp; đảm bảo đầy đủ tiêu chí do Nhà nước quy định.</p><p><strong>Vai trò (3 ý chính):</strong></p><ul><li>Khai thác hiệu quả lợi thế về vị trí địa lí, tự nhiên, dân cư - xã hội...</li><li>Thúc đẩy khai thác tiềm năng đất trống, đồi núi trọc, đất hoang mạc hóa vào sản xuất nông nghiệp, lâm nghiệp, thủy sản → nâng cao hiệu quả sử dụng đất, cải thiện môi trường sinh thái.</li><li>Thúc đẩy sản xuất theo hướng hàng hóa, giúp địa phương quy hoạch, hình thành vùng chuyên canh cây trồng, vật nuôi.</li></ul>"
+                },
+                {
+                  title: "2. Tình hình phát triển và phân bố",
+                  desc: "<ul><li><strong>Quy mô &amp; cơ cấu (năm 2021):</strong> Cả nước có 23.771 trang trại, chủ yếu là trang trại chăn nuôi (chiếm 57,8%).</li><li><strong>Lao động:</strong> Chủ yếu là chủ trang trại và thành viên gia đình; một số có thuê mướn lao động.</li><li><strong>Phân bố:</strong> Rộng khắp cả nước, tập trung chủ yếu ở Đồng bằng sông Hồng, Đồng bằng sông Cửu Long, Đông Nam Bộ.</li></ul>"
+                },
+                {
+                  title: "3. Xu hướng phát triển",
+                  desc: "<p>Phát triển theo hướng trang trại hữu cơ, ứng dụng công nghệ cao, chuyển đổi số vào sản xuất → nâng cao năng suất, chất lượng sản phẩm (phục vụ tiêu dùng &amp; xuất khẩu), đảm bảo môi trường, đạt chứng nhận tiêu chuẩn an toàn.</p>"
+                }
+              ]
+            },
+            {
+              title: "NHÁNH LỚN 2: VÙNG CHUYÊN CANH",
+              children: [
+                {
+                  title: "1. Khái niệm và vai trò",
+                  desc: "<p><strong>Khái niệm:</strong> Vùng tập trung phát triển một hoặc một số loại cây trồng gắn với tài nguyên thiên nhiên (đất đai, khí hậu...) → nâng cao năng suất, chất lượng cung cấp nguyên liệu cho công nghiệp chế biến và tạo khối lượng hàng hóa lớn cho thị trường.</p><p><strong>Vai trò (5 ý chính):</strong></p><ul><li>Khai thác tốt điều kiện sinh thái nông nghiệp, kinh tế - xã hội khác nhau giữa các vùng.</li><li>Thúc đẩy nền nông nghiệp hàng hóa, tạo ra sản phẩm xuất khẩu.</li><li>Tạo nguồn nguyên liệu tập trung để phát triển công nghiệp chế biến.</li><li>Giải quyết việc làm, nâng cao hiệu quả kinh tế.</li><li>Góp phần áp dụng tiến bộ khoa học - kĩ thuật (KH-KT).</li></ul>"
+                },
+                {
+                  title: "2. Tình hình phát triển và phân bố (4 nhóm vùng trọng điểm)",
+                  desc: "<ul><li><strong>Vùng chuyên canh cây công nghiệp:</strong> Tập trung ở Đông Nam Bộ và Nam Trung Bộ (địa hình bán bình nguyên, cao nguyên, đất đỏ badan, khí hậu phân hóa mùa mưa - khô rõ rệt) → phát triển cà phê, cao su, hồ tiêu...</li><li><strong>Vùng chuyên canh cây lương thực, thực phẩm:</strong> Tập trung ở Đồng bằng sông Hồng và Đồng bằng sông Cửu Long (địa hình bằng phẳng, đất phù sa màu mỡ) → phát triển lúa gạo, rau đậu...</li><li><strong>Vùng chuyên canh cây ăn quả:</strong><ul><li>Trung du và miền núi Bắc Bộ: vải thiều, cam, đào, lê, mận...</li><li>Nam Trung Bộ: bơ, chuối...</li><li>Đông Nam Bộ: bưởi, cam, sầu riêng...</li><li>Đồng bằng sông Cửu Long: xoài, nhãn, chôm chôm...</li></ul></li><li><strong>Vùng chuyên canh nuôi trồng thủy sản:</strong> Phát triển mạnh ở Đồng bằng sông Cửu Long với nhiều thủy sản giá trị kinh tế cao (tôm, cua, cá...).</li></ul>"
+                },
+                {
+                  title: "3. Xu hướng phát triển",
+                  desc: "<p>Gắn với công nghiệp chế biến; đẩy mạnh chuyển giao KH-CN trong sản xuất; ứng dụng công nghệ thông tin quản lí vùng nguyên liệu để truy xuất nguồn gốc, đảm bảo chất lượng nông sản cho thị trường trong nước và xuất khẩu.</p>"
+                }
+              ]
+            },
+            {
+              title: "NHÁNH LỚN 3: KHU NÔNG NGHIỆP CÔNG NGHỆ CAO",
+              children: [
+                {
+                  title: "1. Vai trò (Động lực thúc đẩy ứng dụng công nghệ cao)",
+                  desc: "<ul><li><strong>Nghiên cứu và Ứng dụng:</strong> Nghiên cứu ứng dụng, thử nghiệm, trình diễn mô hình sản xuất nông nghiệp công nghệ cao.</li><li><strong>Liên kết và Sản xuất:</strong> Liên kết hoạt động nghiên cứu, ứng dụng công nghệ cao với sản xuất sản phẩm.</li><li><strong>Phát triển Nguồn nhân lực:</strong> Đào tạo và thu hút nguồn đầu tư, nhân lực công nghệ cao trong và ngoài nước.</li><li><strong>Xúc tiến thương mại:</strong> Tổ chức hội chợ, triển lãm, trình diễn sản phẩm nông nghiệp công nghệ cao.</li><li><strong>Đầu ra chất lượng cao:</strong> Chọn tạo, nhân giống cây trồng/vật nuôi, bảo quản, chế biến sản phẩm đạt năng suất và chất lượng cao.</li></ul>"
+                },
+                {
+                  title: "2. Tình hình phát triển và phân bố",
+                  desc: "<ul><li><strong>a) Thực trạng phát triển (tính đến năm 2023):</strong><ul><li><strong>Quy mô:</strong> Cả nước có 6 khu đã đi vào hoạt động.</li><li><strong>Lực lượng tham gia:</strong> 290 doanh nghiệp và 2.000 hợp tác xã nông nghiệp ứng dụng công nghệ cao, thông minh.</li><li><strong>Đóng góp:</strong> Đóng góp 3,83% vào tăng trưởng GDP toàn ngành Nông nghiệp.</li></ul></li><li><strong>b) Phân bố:</strong><ul><li><strong>Quy hoạch đến năm 2030:</strong> Cả nước sẽ có 22 khu nông nghiệp ứng dụng công nghệ cao ở nhiều tỉnh thành, đa dạng lĩnh vực (trồng trọt, chăn nuôi, thủy sản, bảo quản, chế biến).</li><li><strong>Một số khu đã hoạt động (theo kế hoạch 2020):</strong><ul><li>Miền Bắc: Thái Nguyên, Quảng Ninh, Thanh Hóa.</li><li>Miền Trung / Tây Nguyên: Khánh Hòa, Lâm Đồng (Lạc Dương), Phú Yên (Đắk Lắk).</li><li>Miền Nam: TP. Hồ Chí Minh, Bình Dương, Hậu Giang, Cần Thơ.</li></ul></li></ul></li></ul>"
+                },
+                {
+                  title: "3. Xu hướng phát triển",
+                  desc: "<p>Gắn liền với quá trình chuyển dịch cơ cấu kinh tế theo hướng công nghiệp hóa, hiện đại hóa và xây dựng nền kinh tế tri thức.</p>"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        id: "bai-16",
+        badge: "Bài 16 • Địa Lí Công Nghiệp",
+        title: "Bài 16: Chuyển dịch cơ cấu công nghiệp",
+        summary: "Chuyển dịch theo ngành, theo thành phần kinh tế (3 nguyên nhân) và theo lãnh thổ (tỉ trọng các vùng, biểu hiện, nguyên nhân).",
+        root: {
+          title: "BÀI 16: CHUYỂN DỊCH CƠ CẤU CÔNG NGHIỆP",
+          children: [
+            {
+              title: "Nhánh 1: Chuyển dịch cơ cấu công nghiệp theo ngành",
+              children: [
+                {
+                  title: "Giữa các nhóm ngành",
+                  children: [
+                    {
+                      title: "Giảm tỉ trọng",
+                      desc: "<p>Công nghiệp khai khoáng (5 ngành cấp 2).</p>"
+                    },
+                    {
+                      title: "Tăng tỉ trọng",
+                      desc: "<ul><li>Công nghiệp chế biến, chế tạo (24 ngành cấp 2).</li><li>Sản xuất và phân phối điện, khí đốt, nước (1 ngành).</li><li>Cung cấp nước, xử lí rác thải (4 ngành).</li></ul>"
+                    },
+                    {
+                      title: "Ý nghĩa",
+                      desc: "<p>Phù hợp với quá trình công nghiệp hóa – hiện đại hóa (CNH – HĐH).</p>"
+                    }
+                  ]
+                },
+                {
+                  title: "Trong nội bộ từng ngành",
+                  children: [
+                    {
+                      title: "Giảm tỉ trọng",
+                      desc: "<p>Nhóm ngành sử dụng nhiều lao động, giá trị thấp.</p>"
+                    },
+                    {
+                      title: "Tăng tỉ trọng",
+                      desc: "<p>Ngành công nghệ cao (điện tử, ô tô, năng lượng tái tạo...), ngành có giá trị gia tăng cao.</p>"
+                    }
+                  ]
+                },
+                {
+                  title: "Xu hướng chung",
+                  desc: "<p>Phát triển bền vững, giảm phụ thuộc tài nguyên, hội nhập quốc tế.</p>"
+                }
+              ]
+            },
+            {
+              title: "Nhánh 2: Chuyển dịch cơ cấu công nghiệp theo thành phần kinh tế",
+              children: [
+                {
+                  title: "Xu hướng",
+                  desc: "<ul><li><strong>Tăng tỉ trọng:</strong> Khu vực kinh tế ngoài Nhà nước và khu vực có vốn đầu tư nước ngoài (FDI).</li><li><strong>Giảm tỉ trọng:</strong> Khu vực kinh tế Nhà nước.</li></ul>"
+                },
+                {
+                  title: "Nguyên nhân (3 ý)",
+                  desc: "<ul><li>Phù hợp với chính sách phát triển kinh tế mở.</li><li>Tăng thu hút đầu tư, nâng cao hiệu quả sản xuất.</li><li>Phát triển kinh tế thị trường định hướng xã hội chủ nghĩa.</li></ul>"
+                }
+              ]
+            },
+            {
+              title: "Nhánh 3: Chuyển dịch cơ cấu công nghiệp theo lãnh thổ",
+              children: [
+                {
+                  title: "Tỉ trọng giữa các vùng",
+                  desc: "<ul><li><strong>Dẫn đầu cả nước:</strong> Đồng bằng sông Hồng (38,19% – nhất), Đông Nam Bộ (34,12% – nhì).</li><li><strong>Tỉ trọng tăng dần:</strong> Trung du và miền núi Bắc Bộ (11,41%), Bắc Trung Bộ &amp; Nam Trung Bộ (10,50%).</li><li><strong>Tỉ trọng còn thấp:</strong> Đồng bằng sông Cửu Long (5,78%).</li></ul>"
+                },
+                {
+                  title: "Biểu hiện",
+                  desc: "<p>Mở rộng các khu công nghiệp, khu công nghệ cao (cả nước có 4 khu); xuất hiện nhiều trung tâm công nghiệp mới.</p>"
+                },
+                {
+                  title: "Nguyên nhân",
+                  desc: "<p>Chính sách thu hút đầu tư, cải thiện cơ sở hạ tầng; định hướng phát triển tập trung, bền vững, không dàn đều.</p>"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        id: "bai-17",
+        badge: "Bài 17 • Địa Lí Công Nghiệp",
+        title: "Bài 17: Một số ngành công nghiệp",
+        summary: "Khai thác than, dầu, khí; sản xuất điện (2010–2023); điện tử - máy vi tính; thực phẩm; đồ uống; dệt, may; giày dép.",
+        root: {
+          title: "BÀI 17: MỘT SỐ NGÀNH CÔNG NGHIỆP",
+          children: [
+            {
+              title: "Nhánh 1: Công nghiệp khai thác than, dầu, khí",
+              children: [
+                {
+                  title: "1. Khai thác than",
+                  desc: "<ul><li><strong>Lịch sử &amp; công nghệ:</strong> Khai thác từ đầu thế kỉ XIX; đầu tư công nghệ tiên tiến, cơ giới hóa, tự động hóa đồng bộ → tăng năng suất, chất lượng, hạn chế tác động môi trường.</li><li><strong>Sản lượng &amp; mục đích:</strong> Sản lượng ngày càng tăng; chủ yếu phục vụ công nghiệp nhiệt điện và xuất khẩu.</li><li><strong>Phân bố:</strong> Tập trung nhiều ở Quảng Ninh, Lạng Sơn, Thái Nguyên, Bắc Giang.</li></ul>"
+                },
+                {
+                  title: "2. Khai thác dầu mỏ, khí tự nhiên",
+                  desc: "<ul><li><strong>Lịch sử &amp; trữ lượng:</strong> Khai thác từ những năm 80 của thế kỉ XX; trữ lượng lớn ở vùng biển và thềm lục địa phía Nam.</li><li><strong>Bể trầm tích lớn nhất:</strong> Cửu Long và Nam Côn Sơn.</li><li><strong>Các mỏ lớn:</strong> Mỏ dầu (Rồng, Bạch Hổ, Rạng Đông, Hồng Ngọc...); mỏ khí (Lan Tây, Lan Đỏ, Sư Tử Trắng...).</li><li><strong>Chế biến &amp; hợp tác:</strong> Xây dựng các nhà máy lọc dầu (Nghi Sơn, Dung Quất, Long Sơn...); mở rộng liên doanh khai thác ở nước ngoài.</li></ul>"
+                }
+              ]
+            },
+            {
+              title: "Nhánh 2: Công nghiệp sản xuất điện",
+              children: [
+                {
+                  title: "1. Tiềm năng & nguồn cung theo miền",
+                  desc: "<ul><li><strong>Thủy điện:</strong> Hệ thống sông ở Tây Bắc, Nam Trung Bộ, Đông Nam Bộ (sông Hồng, Xê-xan, Đồng Nai).</li><li><strong>Nhiệt điện:</strong> Trữ lượng than đá, dầu mỏ, khí tự nhiên lớn.</li><li><strong>Năng lượng tái tạo (điện mặt trời, điện gió):</strong> Khí hậu nhiệt đới gió mùa, mùa khô dài ở DH Nam Trung Bộ và Nam Bộ.</li><li><strong>Nguồn cung chủ yếu:</strong> Miền Bắc (thủy điện, nhiệt điện than); Miền Trung (điện gió, điện mặt trời); Miền Nam &amp; Nam Trung Bộ (thủy điện, nhiệt điện khí, điện gió, điện mặt trời).</li></ul>"
+                },
+                {
+                  title: "2. Cơ cấu sản lượng điện (2010 – 2023)",
+                  desc: "<ul><li><strong>Nhiệt điện:</strong> Chiếm tỉ trọng lớn nhất nhưng có xu hướng giảm gần đây (56% năm 2010 → 56,2% năm 2021 → 43,5% năm 2023).</li><li><strong>Thủy điện:</strong> Xu hướng giảm tỉ trọng (38% năm 2010 → 28,4% năm 2023).</li><li><strong>Năng lượng tái tạo:</strong> Tăng vọt (0% năm 2010 → 12,3% năm 2021 → 26,9% năm 2023).</li><li><strong>Nguồn khác:</strong> Giảm (6% năm 2010 → 0,9% năm 2021 → 1,2% năm 2023).</li></ul>"
+                },
+                {
+                  title: "3. Các nhà máy điện lớn",
+                  desc: "<ul><li><strong>Thủy điện:</strong> Sơn La, Phú Thọ, Lai Châu, Yaly, Huội Quảng, Trị An...</li><li><strong>Nhiệt điện than:</strong> Duyên Hải 1, Vũng Áng 1, Vĩnh Tân, Phả Lại, Quảng Ninh...</li><li><strong>Nhiệt điện khí:</strong> Phú Mỹ 1, Nhơn Trạch 2, Cà Mau 1, Ô Môn 1.</li><li><strong>Điện gió, mặt trời:</strong> Khánh Hòa, Đắk Lắk, Cà Mau...</li></ul>"
+                },
+                {
+                  title: "4. Mạng lưới điện & hướng phát triển",
+                  desc: "<ul><li><strong>Mạng lưới:</strong> Hệ thống 500 kV (dài và quan trọng nhất, tuyến chính từ Lai Châu đến Cần Thơ); Hệ thống 220 kV (kết nối hầu hết tỉnh thành).</li><li><strong>Hướng phát triển:</strong> Cải tiến kĩ thuật, nâng cấp công nghệ, giảm phát thải CO₂, chuyển dịch sang năng lượng sạch và tái tạo.</li></ul>"
+                }
+              ]
+            },
+            {
+              title: "Nhánh 3: Điện tử, máy vi tính",
+              desc: "<ul><li><strong>Điều kiện:</strong> Lao động trẻ, trình độ ngày càng cao, KH-CN, chính sách phát triển và hội nhập.</li><li><strong>Đặc điểm:</strong> Ngành công nghiệp trẻ (phát triển mạnh từ năm 2000 đến nay); sản phẩm đa dạng; đẩy mạnh nghiên cứu, ứng dụng KH-CN.</li><li><strong>Phân bố:</strong> Các đô thị lớn như Hà Nội, Hải Phòng, TP. Hồ Chí Minh...</li></ul>"
+            },
+            {
+              title: "Nhánh 4: Sản xuất, chế biến thực phẩm",
+              desc: "<ul><li><strong>Điều kiện:</strong> Nguyên liệu trong nước phong phú, lao động dồi dào, thị trường tiêu thụ rộng lớn.</li><li><strong>Đặc điểm:</strong> Hình thành từ cuối thế kỉ XIX; sản phẩm đa dạng, sản lượng không ngừng tăng.</li><li><strong>Phân bố:</strong> Gần vùng nguyên liệu hoặc thị trường lớn (Hà Nội, Hải Phòng, Đà Nẵng, Khánh Hòa, TP. Hồ Chí Minh, Cần Thơ...).</li></ul>"
+            },
+            {
+              title: "Nhánh 5: Sản xuất đồ uống",
+              desc: "<ul><li><strong>Điều kiện:</strong> Nguyên liệu phong phú, nhu cầu thị trường ngày càng tăng.</li><li><strong>Đặc điểm:</strong> Cơ cấu đa dạng (nước tinh khiết, nước khoáng, bia...); ứng dụng rộng rãi KH-CN; có sự tham gia của các tập đoàn lớn trên thế giới.</li><li><strong>Phân bố:</strong> Chủ yếu ở các đô thị và gần nguồn nước khoáng.</li></ul>"
+            },
+            {
+              title: "Nhánh 6: Dệt, may",
+              desc: "<ul><li><strong>Điều kiện:</strong> Lao động dồi dào, thị trường rộng lớn, nguyên liệu trong nước phong phú.</li><li><strong>Đặc điểm:</strong> Hình thành khoảng thế kỉ XIX (các nhà máy dệt ở Ninh Bình, Hà Nội, TP. Hồ Chí Minh); sản phẩm đa dạng, sản lượng tăng, tự động hóa rộng rãi.</li><li><strong>Phân bố:</strong> Tập trung ở các đô thị lớn.</li></ul>"
+            },
+            {
+              title: "Nhánh 7: Giày dép",
+              desc: "<ul><li><strong>Đặc điểm:</strong> Phát triển nhanh (nhờ lao động, thị trường, nguyên liệu); giữ vị trí cao trên thế giới về sản xuất và xuất khẩu.</li><li><strong>Công nghệ:</strong> Ứng dụng phương thức hiện đại như đưa rô-bốt vào sản xuất, công nghệ in 3D...</li><li><strong>Phân bố:</strong> Rộng rãi khắp cả nước.</li></ul>"
+            }
+          ]
+        }
+      }
+    ];
+
+    let LESSONS = loadLessons();
+    let currentScale = 1;
+    let activeLesson = null;
+    let isEditMode = true;
+    let currentLayout = localStorage.getItem(LAYOUT_KEY) || "horizontal";
+
+    function loadLessons() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_LESSONS));
+    }
+
+    function saveLessons(showNotice = true) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(LESSONS));
+        if (showNotice) {
+          const badge = document.getElementById("saveStatus");
+          badge.textContent = "✓ Đã lưu";
+          clearTimeout(window._saveTimer);
+          window._saveTimer = setTimeout(() => {
+            badge.textContent = "Đã tự lưu";
+          }, 1500);
+        }
+      } catch (e) {}
+    }
+
+    function setLayout(mode) {
+      currentLayout = mode === "vertical" ? "vertical" : "horizontal";
+      localStorage.setItem(LAYOUT_KEY, currentLayout);
+
+      const tree = document.getElementById("mindmapTree");
+      tree.classList.toggle("vertical", currentLayout === "vertical");
+
+      document.getElementById("btnHorizontal").classList.toggle("layout-active", currentLayout === "horizontal");
+      document.getElementById("btnVertical").classList.toggle("layout-active", currentLayout === "vertical");
+      resetZoom();
+    }
+
+    function resetAllEdits() {
+      if (confirm("Khôi phục toàn bộ bài học và sơ đồ về bản gốc ban đầu của sư phụ?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        LESSONS = JSON.parse(JSON.stringify(DEFAULT_LESSONS));
+        renderLibrary(document.getElementById("globalSearch").value);
+        if (activeLesson) {
+          const updated = LESSONS.find(l => l.id === activeLesson.id);
+          if (updated) {
+            openLesson(updated.id, document.getElementById("globalSearch").value.trim().toLowerCase());
+          } else {
+            showLibrary();
+          }
+        }
+        document.getElementById("saveStatus").textContent = "Đã khôi phục gốc";
+      }
+    }
+
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      document.body.classList.toggle("edit-mode", isEditMode);
+      const btn = document.getElementById("editModeBtn");
+      btn.classList.toggle("active-edit", isEditMode);
+      btn.textContent = isEditMode ? "✏️ Đang bật sửa & dựng" : "👁️ Đang khóa sửa";
+
+      document.querySelectorAll(".editable-field").forEach(el => {
+        el.contentEditable = isEditMode ? "true" : "false";
+      });
+    }
+
+    function openAddLessonModal() {
+      document.getElementById("newLessonTitle").value = "";
+      document.getElementById("newLessonBadge").value = "Bài tự tạo • Địa Lí 12";
+      document.getElementById("newLessonRoot").value = "";
+      document.getElementById("newLessonSummary").value = "";
+      document.getElementById("addLessonModal").classList.add("open");
+      setTimeout(() => document.getElementById("newLessonTitle").focus(), 40);
+    }
+
+    function closeAddLessonModal() {
+      document.getElementById("addLessonModal").classList.remove("open");
+    }
+
+    function createNewLesson() {
+      const titleInput = document.getElementById("newLessonTitle").value.trim();
+      if (!titleInput) {
+        alert("Đồ nhi nhập tên bài học trước nhé!");
+        return;
+      }
+
+      const badgeInput = document.getElementById("newLessonBadge").value.trim() || "Bài tự tạo • Địa Lí 12";
+      const rootInput = document.getElementById("newLessonRoot").value.trim() || titleInput.toUpperCase();
+      const summaryInput = document.getElementById("newLessonSummary").value.trim() || "Sơ đồ tư duy do đồ nhi tự dựng và thêm nhánh.";
+
+      const newId = "bai-custom-" + Date.now();
+      const newLesson = {
+        id: newId,
+        badge: badgeInput,
+        title: titleInput,
+        summary: summaryInput,
+        root: {
+          title: rootInput,
+          children: [
+            {
+              title: "Nhánh 1: Nội dung trọng tâm",
+              desc: "<p>Bấm trực tiếp vào chữ để sửa hoặc bấm <strong>+ Nhánh con</strong> để vẽ tiếp sơ đồ.</p>",
+              children: []
+            }
+          ]
+        }
+      };
+
+      LESSONS.push(newLesson);
+      saveLessons(true);
+      closeAddLessonModal();
+      openLesson(newId, document.getElementById("globalSearch").value.trim().toLowerCase());
+    }
+
+    function deleteLesson(lessonId, event) {
+      event.stopPropagation();
+      const target = LESSONS.find(l => l.id === lessonId);
+      if (!target) return;
+      if (!confirm(`Xóa bài "${target.title}" khỏi thư viện?`)) return;
+
+      LESSONS = LESSONS.filter(l => l.id !== lessonId);
+      saveLessons(true);
+      renderLibrary(document.getElementById("globalSearch").value);
+    }
+
+    function renderLibrary(filterText = "") {
+      const grid = document.getElementById("cardsGrid");
+      const query = filterText.trim().toLowerCase();
+      grid.innerHTML = "";
+
+      const filtered = LESSONS.filter(lesson => {
+        if (!query) return true;
+        return JSON.stringify(lesson).toLowerCase().includes(query);
+      });
+
+      document.getElementById("lessonCount").textContent = `Hiện có ${filtered.length} bài học`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+          Không tìm thấy bài học hoặc từ khóa phù hợp với "<strong>${filterText}</strong>".
+        </div>`;
+        return;
+      }
+
+      filtered.forEach(lesson => {
+        const card = document.createElement("div");
+        card.className = "lesson-card";
+        card.onclick = () => openLesson(lesson.id, query);
+        card.innerHTML = `
+          <div>
+            <div class="card-top-row">
+              <span class="card-badge">${lesson.badge}</span>
+              <button class="card-del-btn" title="Xóa bài này" onclick="deleteLesson('${lesson.id}', event)">🗑️ Xóa</button>
+            </div>
+            <h3>${lesson.title}</h3>
+            <p>${lesson.summary}</p>
+          </div>
+          <div class="card-footer">
+            <span>Mở sơ đồ tư duy</span>
+            <span>➔</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function rerenderCurrentMindmap() {
+      if (!activeLesson) return;
+      const q = document.getElementById("globalSearch").value.trim().toLowerCase();
+      const treeContainer = document.getElementById("mindmapTree");
+      treeContainer.innerHTML = "";
+      treeContainer.appendChild(createNodeElement(activeLesson.root, 0, 0, q, null, -1));
+      treeContainer.classList.toggle("vertical", currentLayout === "vertical");
+    }
+
+    function createNodeElement(node, level = 0, branchIndex = 0, highlightQuery = "", parentChildren = null, childIndex = -1) {
+      const wrapper = document.createElement("div");
+      wrapper.className = `node-wrapper level-${level} branch-${branchIndex}`;
+
+      const box = document.createElement("div");
+      box.className = "node-box";
+
+      if (highlightQuery) {
+        const nodeText = ((node.title || "") + " " + (node.desc || "")).toLowerCase();
+        if (nodeText.includes(highlightQuery)) {
+          box.classList.add("highlight");
+        }
+      }
+
+      const titleEl = document.createElement("div");
+      titleEl.className = "node-title editable-field";
+      titleEl.contentEditable = isEditMode ? "true" : "false";
+      titleEl.innerHTML = node.title;
+      titleEl.addEventListener("input", () => {
+        node.title = titleEl.innerHTML;
+        saveLessons(true);
+      });
+      titleEl.addEventListener("click", (e) => {
+        if (isEditMode) e.stopPropagation();
+      });
+      box.appendChild(titleEl);
+
+      if (node.desc !== undefined && node.desc !== null) {
+        const descEl = document.createElement("div");
+        descEl.className = "node-desc editable-field";
+        descEl.contentEditable = isEditMode ? "true" : "false";
+        descEl.innerHTML = node.desc;
+        descEl.addEventListener("input", () => {
+          node.desc = descEl.innerHTML;
+          saveLessons(true);
+        });
+        descEl.addEventListener("click", (e) => {
+          if (isEditMode) e.stopPropagation();
+        });
+        box.appendChild(descEl);
+      }
+
+      // Thanh dựng sơ đồ trực tiếp trên nhánh
+      const actionsBar = document.createElement("div");
+      actionsBar.className = "node-actions";
+
+      const addChildBtn = document.createElement("button");
+      addChildBtn.type = "button";
+      addChildBtn.className = "mini-act-btn add-child";
+      addChildBtn.textContent = "+ Nhánh con";
+      addChildBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (!Array.isArray(node.children)) node.children = [];
+        node.children.push({
+          title: "Nhánh mới",
+          desc: "<p>Nhập nội dung...</p>"
+        });
+        saveLessons(true);
+        rerenderCurrentMindmap();
+      };
+      actionsBar.appendChild(addChildBtn);
+
+      if (node.desc === undefined || node.desc === null) {
+        const addDescBtn = document.createElement("button");
+        addDescBtn.type = "button";
+        addDescBtn.className = "mini-act-btn";
+        addDescBtn.textContent = "+ Ý/Mô tả";
+        addDescBtn.onclick = (e) => {
+          e.stopPropagation();
+          node.desc = "<p>Nhập ghi chú...</p>";
+          saveLessons(true);
+          rerenderCurrentMindmap();
+        };
+        actionsBar.appendChild(addDescBtn);
+      }
+
+      if (level > 0 && Array.isArray(parentChildren) && childIndex > -1) {
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "mini-act-btn del-node";
+        delBtn.textContent = "× Xóa";
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          parentChildren.splice(childIndex, 1);
+          saveLessons(true);
+          rerenderCurrentMindmap();
+        };
+        actionsBar.appendChild(delBtn);
+      }
+
+      box.appendChild(actionsBar);
+      wrapper.appendChild(box);
+
+      if (node.children && node.children.length > 0) {
+        const toggleBtn = document.createElement("span");
+        toggleBtn.className = "toggle-btn";
+        toggleBtn.textContent = "−";
+        box.appendChild(toggleBtn);
+
+        const childrenCol = document.createElement("div");
+        childrenCol.className = "children-col";
+
+        node.children.forEach((child, idx) => {
+          const childItem = document.createElement("div");
+          childItem.className = "child-item";
+          const nextBranch = level === 0 ? idx : branchIndex;
+          childItem.appendChild(createNodeElement(child, level + 1, nextBranch, highlightQuery, node.children, idx));
+          childrenCol.appendChild(childItem);
+        });
+
+        const toggleAction = (e) => {
+          e.stopPropagation();
+          const isCollapsed = childrenCol.classList.toggle("collapsed");
+          toggleBtn.textContent = isCollapsed ? "+" : "−";
+        };
+
+        toggleBtn.onclick = toggleAction;
+        box.onclick = (e) => {
+          if (!isEditMode) toggleAction(e);
+        };
+
+        wrapper.appendChild(childrenCol);
+      }
+
+      return wrapper;
+    }
+
+    function openLesson(lessonId, highlightQuery = "") {
+      activeLesson = LESSONS.find(l => l.id === lessonId);
+      if (!activeLesson) return;
+
+      document.getElementById("library-view").style.display = "none";
+      document.getElementById("mindmap-view").style.display = "flex";
+      document.getElementById("currentLessonTitle").textContent = activeLesson.title;
+
+      const treeContainer = document.getElementById("mindmapTree");
+      treeContainer.innerHTML = "";
+      treeContainer.appendChild(createNodeElement(activeLesson.root, 0, 0, highlightQuery, null, -1));
+      setLayout(currentLayout);
+    }
+
+    function showLibrary() {
+      activeLesson = null;
+      document.getElementById("mindmap-view").style.display = "none";
+      document.getElementById("library-view").style.display = "block";
+      renderLibrary(document.getElementById("globalSearch").value);
+    }
+
+    function handleSearch(val) {
+      const q = val.trim().toLowerCase();
+      if (activeLesson) {
+        rerenderCurrentMindmap();
+      } else {
+        renderLibrary(val);
+      }
+    }
+
+    function expandAll(expand) {
+      document.querySelectorAll(".children-col").forEach(col => {
+        if (expand) col.classList.remove("collapsed");
+        else col.classList.add("collapsed");
+      });
+      document.querySelectorAll(".toggle-btn").forEach(btn => {
+        btn.textContent = expand ? "−" : "+";
+      });
+    }
+
+    function zoomCanvas(delta) {
+      currentScale = Math.min(1.5, Math.max(0.55, +(currentScale + delta).toFixed(2)));
+      const tree = document.getElementById("mindmapTree");
+      tree.style.transform = `scale(${currentScale})`;
+      tree.style.transformOrigin = "top left";
+    }
+
+    function resetZoom() {
+      currentScale = 1;
+      const tree = document.getElementById("mindmapTree");
+      tree.style.transform = "scale(1)";
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle("dark");
+      document.getElementById("themeBtn").textContent = isDark ? "☀️ Chế độ sáng" : "🌙 Chế độ tối";
+    }
+
+    renderLibrary();
+  </script>
+</body>
+</html>
